@@ -8,13 +8,15 @@
 #include <uni.h>
 #include "controller_callbacks.h"
 
-extern ControllerPtr myControllers[BP32_MAX_GAMEPADS]; // BP32 library allows for up to 4 concurrent controller connections, but we only need 1
+#define IN1  16 
+
+extern ControllerPtr myControllers[BP32_MAX_GAMEPADS];
 
 void dumpGamepad(ControllerPtr ctl) {
     Console.printf(
         "DPAD: %d A: %d B: %d X: %d Y: %d LX: %d LY: %d RX: %d RY: %d L1: %d R1: %d L2: %d R2: %d\n",
-        ctl->dpad(),        // D-pad
-        ctl->a(),           // Letter buttons
+        ctl->dpad(),         // D-pad
+        ctl->a(),           // buttons
         ctl->b(),
         ctl->x(),
         ctl->y(),
@@ -22,7 +24,7 @@ void dumpGamepad(ControllerPtr ctl) {
         ctl->axisY(),        // (-511 - 512) left Y axis
         ctl->axisRX(),       // (-511 - 512) right X axis
         ctl->axisRY(),       // (-511 - 512) right Y axis
-        ctl->l1(),           // Bumpers
+        ctl->l1(),
         ctl->r1(),
         ctl->l2(),
         ctl->r2()
@@ -32,23 +34,20 @@ void dumpGamepad(ControllerPtr ctl) {
 void setup() {
     BP32.setup(&onConnectedController, &onDisconnectedController);
     BP32.forgetBluetoothKeys(); 
-    esp_log_level_set("gpio", ESP_LOG_ERROR); // Suppress info log spam from gpio_isr_service
+    esp_log_level_set("gpio", ESP_LOG_ERROR); // suppress info log spam from gpio_isr_service
     uni_bt_allowlist_set_enabled(true);
+    pinMode(IN1, OUTPUT);
+    digitalWrite(IN1, HIGH); // turn on motor
 }
 
 void loop() {
-    vTaskDelay(1); // Ensures WDT does not get triggered when no controller is connected
+    vTaskDelay(1); // ensures WDT does not get triggered when no controller is connected
     BP32.update(); 
-    for (auto myController : myControllers) { // Only execute code when controller is connected
+    for (auto myController : myControllers) { // only execute code when controller is connected
         if (myController && myController->isConnected() && myController->hasData()) {        
           
-            /*
-            ====================
-            Your code goes here!
-            ====================
-            */
-
-            dumpGamepad(myController); // Prints the gamepad state, delete or comment if don't need
+            
+            dumpGamepad(myController); // prints the gamepad state, delete or comment if don't need
         }
     }
 }
