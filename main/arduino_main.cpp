@@ -8,7 +8,8 @@
 #include <uni.h>
 #include "controller_callbacks.h"
 
-#define IN1  16 
+#define IN1 12
+#define IN2 4
 
 extern ControllerPtr myControllers[BP32_MAX_GAMEPADS];
 
@@ -37,7 +38,9 @@ void setup() {
     esp_log_level_set("gpio", ESP_LOG_ERROR); // suppress info log spam from gpio_isr_service
     uni_bt_allowlist_set_enabled(true);
     pinMode(IN1, OUTPUT);
+    pinMode(IN2, OUTPUT);
     digitalWrite(IN1, HIGH); // turn on motor
+    digitalWrite(IN2, HIGH);
 }
 
 void loop() {
