@@ -8,10 +8,53 @@
 #include <uni.h>
 #include "controller_callbacks.h"
 
-#define IN1 12
+#define IN1 0
 #define IN2 4
+#define IN3 15
+#define IN4 2
 
 extern ControllerPtr myControllers[BP32_MAX_GAMEPADS];
+
+void foo(ControllerPtr myController) {
+    while(1) {
+        BP32.update();
+        if(myController->axisY() <= -1) { //FORWARD
+            digitalWrite(IN1, HIGH); // turn on motor
+            digitalWrite(IN4, LOW);
+            // digitalWrite(IN3, HIGH);
+            // digitalWrite(IN2, LOW);
+        }
+
+        else if(myController->axisY() >= 1) { // BACK
+            digitalWrite(IN1, LOW); // turn on motor
+            digitalWrite(IN4, HIGH);
+            digitalWrite(IN3, LOW);
+            digitalWrite(IN2, HIGH);
+        }
+
+        else if(myController->axisX() >= 1) { // RIGHT
+            digitalWrite(IN1, LOW); // turn on motor
+            digitalWrite(IN4, HIGH);
+            digitalWrite(IN3, HIGH);
+            digitalWrite(IN2, LOW);
+        }
+
+        else if(myController->axisX() <= -1) {
+            digitalWrite(IN1, HIGH); // turn on motor
+            digitalWrite(IN4, LOW);
+            digitalWrite(IN3, LOW);
+            digitalWrite(IN2, HIGH);
+        }
+
+        else {
+            digitalWrite(IN1, LOW); // turn on motor
+            digitalWrite(IN4, LOW);
+            digitalWrite(IN3, LOW);
+            digitalWrite(IN2, LOW);
+            Console.printf("Press button A!"); // Replace with whatever you want
+        }
+    }
+}
 
 void dumpGamepad(ControllerPtr ctl) {
     Console.printf(
@@ -39,8 +82,10 @@ void setup() {
     uni_bt_allowlist_set_enabled(true);
     pinMode(IN1, OUTPUT);
     pinMode(IN2, OUTPUT);
-    digitalWrite(IN1, HIGH); // turn on motor
-    digitalWrite(IN2, HIGH);
+    pinMode(IN3, OUTPUT);
+    pinMode(IN4, OUTPUT);
+    
+    
 }
 
 void loop() {
@@ -48,7 +93,7 @@ void loop() {
     BP32.update(); 
     for (auto myController : myControllers) { // only execute code when controller is connected
         if (myController && myController->isConnected() && myController->hasData()) {        
-          
+            foo(myController);
             
             dumpGamepad(myController); // prints the gamepad state, delete or comment if don't need
         }
